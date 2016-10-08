@@ -1,0 +1,339 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     12160,        331]
+NotebookOptionsPosition[     11176,        297]
+NotebookOutlinePosition[     11535,        313]
+CellTagsIndexPosition[     11492,        310]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{"(*", " ", 
+  RowBox[{
+  "Only", " ", "use", " ", "this", " ", "to", " ", "pre", " ", "process", " ",
+    "raw", " ", "DICOM", " ", "data", " ", "from", " ", "Kaggle", " ", 
+   "NDSB2", " ", "page"}], " ", "*)"}]], "Input",
+ CellChangeTimes->{{3.68495076706914*^9, 3.6849508011518*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+  "root", " ", "=", " ", 
+   "\"\</Users/abelbrown/src/kaggle-ndsb2/data/data/\>\""}], ";"}]], "Input",
+ CellChangeTimes->{{3.683844483403922*^9, 3.6838444926236773`*^9}, 
+   3.683845010977462*^9, {3.684781275810557*^9, 3.684781276188044*^9}, {
+   3.684950758015423*^9, 3.684950762825181*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"StudyPath", "[", 
+    RowBox[{"root_", ",", "ix_"}], "]"}], ":=", " ", 
+   RowBox[{"FileNameJoin", "[", 
+    RowBox[{"{", 
+     RowBox[{"root", ",", 
+      RowBox[{"ToString", "@", "ix"}], ",", "\"\<study\>\""}], "}"}], "]"}]}],
+   ";"}]], "Input",
+ CellChangeTimes->{{3.683844411070792*^9, 3.683844470481102*^9}, {
+  3.683844534472848*^9, 3.683844537535997*^9}, {3.683844611821302*^9, 
+  3.6838446146132193`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Studies", "[", 
+   RowBox[{"root_", ",", "ix_"}], "]"}], ":=", 
+  RowBox[{"FileNames", "[", 
+   RowBox[{"\"\<sax*\>\"", ",", 
+    RowBox[{"StudyPath", "[", 
+     RowBox[{"root", ",", "ix"}], "]"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.683844629079417*^9, 3.683844693497819*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"FilesForStudy", "[", 
+   RowBox[{"root_", ",", "ix_"}], "]"}], ":=", 
+  RowBox[{"Map", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"FileNames", "[", 
+      RowBox[{"\"\<*.dcm\>\"", ",", "#"}], "]"}], "&"}], ",", 
+    RowBox[{"Studies", "[", 
+     RowBox[{"root", ",", "ix"}], "]"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.683844697137508*^9, 3.683844742746613*^9}, {
+  3.683844944084597*^9, 3.683844975361815*^9}, {3.683845017897334*^9, 
+  3.68384503816821*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"LoadData", "[", "files_", "]"}], ":=", " ", 
+   RowBox[{"Map", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{
+       RowBox[{"Import", "[", 
+        RowBox[{"#", ",", "\"\<Data\>\""}], "]"}], "[", 
+       RowBox[{"[", "1", "]"}], "]"}], "&"}], ",", "files"}], " ", "]"}]}], 
+  ";"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"ResizeData", "[", "data_", "]"}], ":=", " ", 
+   RowBox[{"Map", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"ImageData", "[", 
+       RowBox[{"ImageResize", "[", 
+        RowBox[{
+         RowBox[{"Image", "[", 
+          RowBox[{"#", ",", "\"\<Bit16\>\""}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"32", ",", "32"}], "}"}]}], "]"}], "]"}], "&"}], ",", 
+     "data"}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.684432302360393*^9, 3.6844323051656237`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"NormalizeData", "[", "data_", "]"}], ":=", " ", 
+  RowBox[{"Map", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"#", "/", 
+      RowBox[{"Max", "[", "#", "]"}]}], "&"}], ",", "data"}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.684345099028541*^9, 3.684345100916222*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"DataForSlice", "[", "files_", "]"}], ":=", " ", 
+  RowBox[{"NormalizeData", "@", 
+   RowBox[{"ResizeData", "@", 
+    RowBox[{"LoadData", "[", "files", "]"}]}]}]}]], "Input",
+ CellChangeTimes->{{3.684345168514409*^9, 3.6843452156828403`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"DataForStudy", "[", "files_", "]"}], ":=", 
+   RowBox[{"Map", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"DataForSlice", "[", "#", "]"}], "&"}], ",", "files"}], "]"}]}],
+   ";"}]], "Input",
+ CellChangeTimes->{{3.6839235179060593`*^9, 3.6839235224946423`*^9}, {
+   3.683923558040946*^9, 3.683923624484766*^9}, {3.6839237958093*^9, 
+   3.683923797846983*^9}, {3.683923889257008*^9, 3.683923895527584*^9}, {
+   3.684339170104685*^9, 3.6843391715670137`*^9}, {3.684339216832365*^9, 
+   3.684339227455943*^9}, {3.684339284095276*^9, 3.684339335517911*^9}, {
+   3.684339856972273*^9, 3.684339860578206*^9}, {3.684339924155971*^9, 
+   3.684339928151022*^9}, {3.68434009283515*^9, 3.68434009464019*^9}, {
+   3.6843434375474377`*^9, 3.6843434385327253`*^9}, {3.6843437990214663`*^9, 
+   3.6843438404966297`*^9}, {3.684343893052251*^9, 3.6843439583296337`*^9}, {
+   3.6843442606580143`*^9, 3.6843442623998528`*^9}, 3.684344293462973*^9, {
+   3.684344338390005*^9, 3.684344363364695*^9}, {3.684344441848106*^9, 
+   3.684344591354506*^9}, {3.684345224364531*^9, 3.684345235747787*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"ExportFileName", "[", "ix_", "]"}], ":=", " ", 
+   RowBox[{"StringJoin", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"StringPadLeft", "[", 
+       RowBox[{
+        RowBox[{"ToString", "@", "ix"}], ",", "4", ",", "\"\<0\>\""}], "]"}], 
+      ",", "\"\<.32.data.mx.gz\>\""}], "}"}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.683934859192165*^9, 3.6839348764005003`*^9}, {
+  3.6844323387489023`*^9, 3.6844323530042267`*^9}, {3.684792324390779*^9, 
+  3.684792325598608*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"ExportFilePath", "[", 
+    RowBox[{"root_", ",", "ix_"}], "]"}], ":=", " ", 
+   RowBox[{"FileNameJoin", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"StudyPath", "[", 
+       RowBox[{"root", ",", "ix"}], "]"}], ",", 
+      RowBox[{"ExportFileName", "[", "ix", "]"}]}], "}"}], "]"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.683934926337357*^9, 3.683934954699667*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ExportDataForStudy", "[", 
+   RowBox[{"root_", ",", "ix_", ",", "data_"}], "]"}], ":=", 
+  RowBox[{"Export", "[", 
+   RowBox[{
+    RowBox[{"ExportFilePath", "[", 
+     RowBox[{"root", ",", "ix"}], "]"}], ",", "data"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.6839240474714937`*^9, 3.6839240507326593`*^9}, {
+   3.68392423718853*^9, 3.6839243202686043`*^9}, {3.683924359208529*^9, 
+   3.6839243615353327`*^9}, {3.683924467752458*^9, 3.683924468070663*^9}, {
+   3.683924554723734*^9, 3.683924555451243*^9}, {3.68393271827805*^9, 
+   3.683932722507597*^9}, {3.683932846078436*^9, 3.6839328487648087`*^9}, {
+   3.6839329072426653`*^9, 3.683932908273025*^9}, {3.6839330009899597`*^9, 
+   3.68393300194792*^9}, {3.683933036727213*^9, 3.683933037484497*^9}, {
+   3.683933338258951*^9, 3.6839333721725082`*^9}, {3.68393342152989*^9, 
+   3.6839334223849163`*^9}, {3.683934265361274*^9, 3.683934292775466*^9}, {
+   3.683934339519038*^9, 3.68393449857163*^9}, {3.683934578455792*^9, 
+   3.6839346312568817`*^9}, {3.683934834289771*^9, 3.6839348538117247`*^9}, {
+   3.683934902113513*^9, 3.683934907408259*^9}, 3.683934948173004*^9, {
+   3.683934982893602*^9, 3.683934988491787*^9}, {3.684781286899683*^9, 
+   3.684781287874597*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ViewDataForStudy", "[", "data_", "]"}], ":=", 
+  RowBox[{"Manipulate", "[", 
+   RowBox[{
+    RowBox[{"Image", "[", 
+     RowBox[{
+      RowBox[{"data", "[", 
+       RowBox[{"[", 
+        RowBox[{"i", ",", "j", ",", "All", ",", "All"}], "]"}], "]"}], ",", 
+      RowBox[{"ImageSize", "->", "Medium"}]}], "]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"i", ",", "1", ",", 
+      RowBox[{"First", "@", 
+       RowBox[{"Dimensions", "@", "data"}]}], ",", "1"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"j", ",", "1", ",", "30", ",", "1"}], "}"}]}], "]"}]}]], "Input",\
+
+ CellChangeTimes->{{3.683845334051825*^9, 3.683845346402833*^9}, {
+   3.683935247284281*^9, 3.6839352476280937`*^9}, {3.68401889606842*^9, 
+   3.684018896355708*^9}, 3.684339019514739*^9, 3.684339056962078*^9, {
+   3.684339461393147*^9, 3.6843394937906303`*^9}, 3.684339529956586*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"ProcessStudy", "[", 
+    RowBox[{"root_", ",", "ix_"}], "]"}], ":=", " ", 
+   RowBox[{"ExportDataForStudy", "[", 
+    RowBox[{"root", ",", "ix", ",", 
+     RowBox[{"DataForStudy", "[", 
+      RowBox[{"FilesForStudy", "[", 
+       RowBox[{"root", ",", "ix"}], "]"}], "]"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.684345518645286*^9, 3.68434561350775*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"ix", " ", "=", " ", "100"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"files", " ", "=", " ", 
+   RowBox[{"FilesForStudy", "[", 
+    RowBox[{"root", ",", "ix"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"data", " ", "=", " ", 
+   RowBox[{"DataForStudy", "[", "files", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"AbsoluteTiming", "@", 
+  RowBox[{"ExportDataForStudy", "[", 
+   RowBox[{"root", ",", "ix", ",", "data"}], "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"data", "//", "Dimensions"}]}], "Input",
+ CellChangeTimes->{{3.6839236772407303`*^9, 3.683923682851367*^9}, 
+   3.683923860837008*^9, {3.684339021034395*^9, 3.684339036847294*^9}, {
+   3.6843390670714417`*^9, 3.684339076367429*^9}, {3.684345405874303*^9, 
+   3.684345410666071*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "2.009462`", 
+   ",", "\<\"/Users/abelbrown/src/kaggle-ndsb2/data/train/100/study/100.data.\
+mx.gz\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.684339108439207*^9, 3.6843393556384773`*^9, 3.684339878856175*^9, 
+   3.6843399467265663`*^9, 3.684340115859675*^9, 3.684343458830832*^9, 
+   3.6843439329038057`*^9, 3.684343978974143*^9, {3.684344367812902*^9, 
+   3.684344399171646*^9}, 3.6843444500360813`*^9, 3.684344500273629*^9, 
+   3.684344556419497*^9, 3.68434462346896*^9, 3.684344853873806*^9, 
+   3.6843452685578947`*^9, 3.684345425986023*^9}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"14", ",", "30", ",", "128", ",", "128"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.684339108439207*^9, 3.6843393556384773`*^9, 3.684339878856175*^9, 
+   3.6843399467265663`*^9, 3.684340115859675*^9, 3.684343458830832*^9, 
+   3.6843439329038057`*^9, 3.684343978974143*^9, {3.684344367812902*^9, 
+   3.684344399171646*^9}, 3.6843444500360813`*^9, 3.684344500273629*^9, 
+   3.684344556419497*^9, 3.68434462346896*^9, 3.684344853873806*^9, 
+   3.6843452685578947`*^9, 3.684345425996978*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"(*", 
+  RowBox[{"ParallelMap", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"ProcessStudy", "[", 
+      RowBox[{"root", ",", "#"}], "]"}], "&"}], ",", 
+    RowBox[{"Range", "[", 
+     RowBox[{"1000", ",", "1140"}], "]"}]}], "]"}], "*)"}]], "Input",
+ CellChangeTimes->{{3.684346254653448*^9, 3.684346284075486*^9}, {
+  3.6844113779034233`*^9, 3.6844113822435083`*^9}, {3.68443237784494*^9, 
+  3.684432380299103*^9}, {3.684781305346919*^9, 3.6847813153545923`*^9}, {
+  3.684792389590461*^9, 3.6847923910129232`*^9}, {3.6848330418074923`*^9, 
+  3.684833045005624*^9}}]
+},
+WindowSize->{808, 755},
+WindowMargins->{{12, Automatic}, {Automatic, 24}},
+FrontEndVersion->"11.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (September \
+21, 2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 309, 6, 32, "Input"],
+Cell[870, 28, 328, 7, 32, "Input"],
+Cell[1201, 37, 461, 12, 32, "Input"],
+Cell[1665, 51, 319, 8, 32, "Input"],
+Cell[1987, 61, 501, 13, 32, "Input"],
+Cell[2491, 76, 341, 11, 32, "Input"],
+Cell[2835, 89, 526, 15, 32, "Input"],
+Cell[3364, 106, 306, 9, 32, "Input"],
+Cell[3673, 117, 276, 6, 32, "Input"],
+Cell[3952, 125, 1124, 20, 32, "Input"],
+Cell[5079, 147, 531, 13, 32, "Input"],
+Cell[5613, 162, 424, 12, 32, "Input"],
+Cell[6040, 176, 1257, 21, 32, "Input"],
+Cell[7300, 199, 886, 21, 54, "Input"],
+Cell[8189, 222, 412, 10, 54, "Input"],
+Cell[CellGroupData[{
+Cell[8626, 236, 816, 18, 117, "Input"],
+Cell[9445, 256, 594, 12, 32, "Output"],
+Cell[10042, 270, 527, 9, 32, "Output"]
+}, Open  ]],
+Cell[10584, 282, 588, 13, 32, "Input"]
+}
+]
+*)
+
